@@ -1,28 +1,49 @@
 import express from 'express'
+import multer from 'multer'
 import { auth } from '../middleware/auth.js'
 import { CustomRequest, AppError } from '../middleware/errorHandler.js'
 import { User } from '../models/User.js'
 import jwt from 'jsonwebtoken'
+import { promises as dns } from 'dns'
 
 const router = express.Router()
+
+const upload = multer({ dest: 'uploads/verification' })
 
 // Sign up
 router.post('/signup', async (req: CustomRequest, res) => {
   try {
     const { name, email, password, userType } = req.body
-    
-    const existingUser = await User.findOne({ email })
+
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return res.status(400).json({ error: 'Invalid email format' })
+    }
+
+    const normalizedEmail = (email as string).toLowerCase().trim()
+
+    // Check MX records for email domain to give a best-effort validation that email is deliverable
+    const domain = normalizedEmail.split('@')[1]
+    try {
+      const mx = await dns.resolveMx(domain)
+      if (!mx || mx.length === 0) {
+        return res.status(400).json({ error: "Email domain doesn't accept mail" })
+      }
+    } catch (err) {
+      return res.status(400).json({ error: "Email domain not found or not accepting mail" })
+    }
+
+    const existingUser = await User.findOne({ email: normalizedEmail })
     if (existingUser) {
       return res.status(400).json({ error: 'Email already in use' })
     }
-    
+
     const user = new User({
       name,
-      email,
+      email: normalizedEmail,
       password,
       userType: userType || 'tenant',
     })
-    
+
     await user.save()
     
     const token = jwt.sign(
@@ -40,7 +61,12 @@ router.post('/signup', async (req: CustomRequest, res) => {
         userType: user.userType,
       },
     })
-  } catch (error) {
+  } catch (error: any) {
+    // Duplicate key error
+    if (error.code === 11000) {
+      return res.status(400).json({ error: 'Email already in use' })
+    }
+    console.error('Signup error:', error)
     res.status(500).json({ error: 'Sign up failed' })
   }
 })
@@ -49,8 +75,10 @@ router.post('/signup', async (req: CustomRequest, res) => {
 router.post('/login', async (req: CustomRequest, res) => {
   try {
     const { email, password } = req.body
-    
-    const user = await User.findOne({ email })
+
+    const normalizedEmail = (email as string).toLowerCase().trim()
+
+    const user = await User.findOne({ email: normalizedEmail })
     if (!user) {
       return res.status(401).json({ error: 'Invalid email or password' })
     }
@@ -92,6 +120,29 @@ router.get('/profile', auth, async (req: CustomRequest, res) => {
     res.json(user)
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch profile' })
+  }
+})
+
+// Submit verification (nid + document)
+router.post('/verify', auth, upload.single('document'), async (req: CustomRequest, res) => {
+  try {
+    const nid = req.body.nid
+    const file = (req as any).file
+
+    const user = await User.findById(req.userId)
+    if (!user) return res.status(404).json({ error: 'User not found' })
+
+    if (nid) user.nid = nid
+    if (file) user.verificationDocument = file.path || file.filename
+
+    // For now, auto-verify when a document is submitted. In future, add admin review.
+    if (nid && file) user.verified = true
+
+    await user.save()
+
+    res.json({ message: 'Verification submitted', user })
+  } catch (error) {
+    res.status(500).json({ error: 'Verification failed' })
   }
 })
 

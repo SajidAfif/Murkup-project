@@ -2,6 +2,8 @@ import React, { useState } from 'react'
 import { User, Mail, Phone, LogOut } from 'lucide-react'
 import { useAuthStore } from '../store/authStore'
 import { useNavigate } from 'react-router-dom'
+import { authService } from '../services/api'
+import toast from 'react-hot-toast'
 
 export default function Profile() {
   const { user, logout } = useAuthStore()
@@ -17,6 +19,33 @@ export default function Profile() {
   if (!user) {
     navigate('/login')
     return null
+  }
+
+  const [nid, setNid] = useState('')
+  const [file, setFile] = useState<File | null>(null)
+  const [submitting, setSubmitting] = useState(false)
+
+  const handleVerifySubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!file) return toast.error('Please select a document')
+    setSubmitting(true)
+    try {
+      const fd = new FormData()
+      fd.append('nid', nid)
+      fd.append('document', file)
+
+      await authService.verify(fd)
+
+      const { data } = await authService.getProfile()
+      useAuthStore.getState().setUser(data)
+      localStorage.setItem('user', JSON.stringify(data))
+      toast.success('Verification submitted')
+    } catch (err) {
+      console.error(err)
+      toast.error('Verification failed')
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   return (
@@ -77,6 +106,38 @@ export default function Profile() {
             </div>
           )}
         </div>
+
+        {/* Verification form for owners */}
+        {user.userType === 'owner' && !user.verified && (
+          <form onSubmit={handleVerifySubmit} className="mt-6 bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
+            <h3 className="text-lg font-semibold mb-3">Verify Account (NID / Passport)</h3>
+            <div className="mb-3">
+              <label className="block text-sm mb-1">NID / Passport Number</label>
+              <input
+                value={nid}
+                onChange={(e) => setNid(e.target.value)}
+                className="w-full px-3 py-2 rounded-lg bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800"
+                placeholder="Enter your NID or passport number"
+              />
+            </div>
+            <div className="mb-3">
+              <label className="block text-sm mb-1">Upload Document (photo of NID or passport)</label>
+              <input
+                type="file"
+                accept="image/*,application/pdf"
+                onChange={(e) => setFile(e.target.files?.[0] || null)}
+                className="w-full"
+              />
+            </div>
+            <button
+              type="submit"
+              disabled={submitting}
+              className="px-4 py-2 bg-primary-600 text-white rounded-lg"
+            >
+              {submitting ? 'Submitting...' : 'Submit for Verification'}
+            </button>
+          </form>
+        )}
 
         <button
           onClick={handleLogout}

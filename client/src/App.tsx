@@ -10,6 +10,8 @@ import SearchResults from './pages/SearchResults'
 import PropertyDetails from './pages/PropertyDetails'
 import Profile from './pages/Profile'
 import ListProperty from './pages/ListProperty'
+import AdminPanel from './pages/AdminPanel'
+import EditProperty from './pages/EditProperty'
 import { useAuthStore } from './store/authStore'
 
 export default function App() {
@@ -45,6 +47,8 @@ export default function App() {
             <Route path="/property/:id" element={<PropertyDetails />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/list-property" element={<ListProperty />} />
+            <Route path="/admin" element={<AdminPanel />} />
+            <Route path="/edit-property/:id" element={<EditProperty />} />
           </Routes>
         </main>
         <Footer />

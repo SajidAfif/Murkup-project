@@ -22,6 +22,8 @@ export const authService = {
     api.post('/auth/login', data),
   getProfile: () =>
     api.get('/auth/profile'),
+  verify: (formData: FormData) =>
+    api.post('/auth/verify', formData, { headers: { 'Content-Type': 'multipart/form-data' } }),
 }
 
 export const propertyService = {
@@ -31,12 +33,28 @@ export const propertyService = {
     api.get(`/properties/${id}`),
   create: (data: any) =>
     api.post('/properties', data),
+  toggleLike: (id: string) =>
+    api.post(`/properties/${id}/like`),
   update: (id: string, data: any) =>
     api.patch(`/properties/${id}`, data),
   delete: (id: string) =>
     api.delete(`/properties/${id}`),
   search: (filters: any) =>
     api.get('/properties', { params: filters }),
+}
+
+export const adminService = {
+  // Users
+  getUsers: () => api.get('/admin/users'),
+  getUser: (id: string) => api.get(`/admin/users/${id}`),
+  updateUser: (id: string, data: any) => api.patch(`/admin/users/${id}`, data),
+  deleteUser: (id: string) => api.delete(`/admin/users/${id}`),
+  // Properties
+  getProperties: () => api.get('/admin/properties'),
+  getProperty: (id: string) => api.get(`/admin/properties/${id}`),
+  updateProperty: (id: string, data: any) => api.patch(`/admin/properties/${id}`, data),
+  deleteProperty: (id: string) => api.delete(`/admin/properties/${id}`),
+  createProperty: (data: any) => api.post('/admin/properties', data),
 }
 
 export default api

@@ -81,12 +81,22 @@ export default function Navbar({ isDark, onToggleDark }: NavbarProps) {
             <div className="hidden md:flex items-center space-x-4">
               {user ? (
                 <>
-                  <Link
-                    to="/list-property"
-                    className="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors font-medium"
-                  >
-                    Post Property
-                  </Link>
+                  {user.userType === 'owner' && (
+                    <Link
+                      to="/list-property"
+                      className="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors font-medium"
+                    >
+                      Post Property
+                    </Link>
+                  )}
+                  {user.userType === 'admin' && (
+                    <Link
+                      to="/admin"
+                      className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium"
+                    >
+                      Admin
+                    </Link>
+                  )}
                   <Link
                     to="/profile"
                     className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
@@ -158,14 +168,16 @@ export default function Navbar({ isDark, onToggleDark }: NavbarProps) {
         {isMenuOpen && (
           <div className="md:hidden pb-4 space-y-2 border-t border-gray-200 dark:border-gray-800 pt-4">
             {user ? (
-              <>
-                <Link
-                  to="/list-property"
-                  className="block px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  Post Property
-                </Link>
+                <>
+                {user.userType === 'owner' && (
+                  <Link
+                    to="/list-property"
+                    className="block px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Post Property
+                  </Link>
+                )}
                 <Link
                   to="/profile"
                   className="block px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg"

@@ -4,7 +4,10 @@ import cors from 'cors'
 import connectDB from './config/database.js'
 import authRoutes from './routes/auth.js'
 import propertyRoutes from './routes/properties.js'
+import adminRoutes from './routes/admin.js'
 import { errorHandler } from './middleware/errorHandler.js'
+import fs from 'fs'
+import path from 'path'
 
 const app = express()
 const PORT = process.env.PORT || 5000
@@ -17,9 +20,13 @@ app.use(cors())
 app.use(express.json())
 app.use(express.urlencoded({ limit: '50mb', extended: true }))
 
+// Serve uploaded files
+app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')))
+
 // Routes
 app.use('/api/auth', authRoutes)
 app.use('/api/properties', propertyRoutes)
+app.use('/api/admin', adminRoutes)
 
 // Health check
 app.get('/health', (req, res) => {
@@ -37,3 +44,15 @@ app.use((req, res) => {
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
 })
+
+// Ensure uploads directories exist
+const uploadsDir = path.join(process.cwd(), 'uploads')
+const verificationDir = path.join(uploadsDir, 'verification')
+const propertiesDir = path.join(uploadsDir, 'properties')
+try {
+  if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir)
+  if (!fs.existsSync(verificationDir)) fs.mkdirSync(verificationDir)
+  if (!fs.existsSync(propertiesDir)) fs.mkdirSync(propertiesDir)
+} catch (err) {
+  console.error('Failed to create uploads directories', err)
+}

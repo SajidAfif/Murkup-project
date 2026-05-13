@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { MapPin, Phone, Mail, Calendar, DoorOpen, Maximize2, Star, Heart, MessageSquare, Check, AlertCircle } from 'lucide-react'
+import { MapPin, Phone, Mail, Calendar, DoorOpen, Maximize2, Star, Heart, MessageSquare, Check, AlertCircle, Bath } from 'lucide-react'
+import { Link } from 'react-router-dom'
 import { propertyService, authService } from '../services/api'
 import { Property } from '../types'
 import { useAuthStore } from '../store/authStore'
@@ -11,8 +12,11 @@ export default function PropertyDetails() {
   const navigate = useNavigate()
   const { user } = useAuthStore()
   const [property, setProperty] = useState<Property | null>(null)
+  const [liked, setLiked] = useState(false)
+  const [likesCount, setLikesCount] = useState(0)
   const [loading, setLoading] = useState(true)
   const [selectedImage, setSelectedImage] = useState(0)
+  const [autoplay, setAutoplay] = useState(false)
   const [showBookingForm, setShowBookingForm] = useState(false)
   const [bookingData, setBookingData] = useState({
     date: '',
@@ -23,14 +27,43 @@ export default function PropertyDetails() {
     loadProperty()
   }, [id])
 
+  // autoplay effect
+  useEffect(() => {
+    if (!autoplay) return
+    const t = setInterval(() => {
+      setSelectedImage((s) => {
+        if (!property || !property.images || property.images.length === 0) return 0
+        return (s + 1) % property.images.length
+      })
+    }, 3500)
+    return () => clearInterval(t)
+  }, [autoplay, property])
+
   const loadProperty = async () => {
     try {
       const { data } = await propertyService.getById(id!)
       setProperty(data)
+      setLikesCount(data.likes ? data.likes.length : 0)
+      setLiked(user ? (data.likes || []).some((u: any) => u._id === user.id || u === user.id) : false)
     } catch (error) {
       toast.error('Failed to load property details')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleToggleLike = async () => {
+    if (!user) {
+      navigate('/login')
+      return
+    }
+
+    try {
+      const { data } = await propertyService.toggleLike(id!)
+      setLiked(data.liked)
+      setLikesCount(data.likesCount)
+    } catch (err) {
+      toast.error('Unable to update like')
     }
   }
 
@@ -77,16 +110,47 @@ export default function PropertyDetails() {
           <div className="mb-8">
             <div className="relative h-96 bg-gray-200 dark:bg-gray-800 rounded-xl overflow-hidden mb-4">
               {property.images.length > 0 ? (
-                <img
-                  src={property.images[selectedImage]}
-                  alt={property.title}
-                  className="w-full h-full object-cover"
-                />
+                  <img
+                    src={property.images[selectedImage]}
+                    alt={property.title}
+                    className="w-full h-full object-cover"
+                  />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-gray-400">No image</div>
               )}
-              <button className="absolute top-4 right-4 p-2 bg-white dark:bg-gray-800 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
-                <Heart className="w-5 h-5" />
+                {/* Slideshow controls */}
+                {property.images.length > 1 && (
+                  <>
+                    <button
+                      onClick={() => setSelectedImage((i) => (i - 1 + property.images.length) % property.images.length)}
+                      className="absolute left-4 top-1/2 -translate-y-1/2 p-2 bg-white/80 dark:bg-gray-800/80 rounded-full hover:scale-105"
+                      aria-label="Previous image"
+                    >
+                      ‹
+                    </button>
+
+                    <button
+                      onClick={() => setSelectedImage((i) => (i + 1) % property.images.length)}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 p-2 bg-white/80 dark:bg-gray-800/80 rounded-full hover:scale-105"
+                      aria-label="Next image"
+                    >
+                      ›
+                    </button>
+
+                    <button
+                      onClick={() => setAutoplay((a) => !a)}
+                      className="absolute left-4 bottom-4 p-2 bg-white/90 dark:bg-gray-800/90 rounded-lg text-sm"
+                    >
+                      {autoplay ? 'Pause' : 'Play'}
+                    </button>
+                  </>
+                )}
+              <button
+                onClick={handleToggleLike}
+                className="absolute top-4 right-4 p-2 bg-white dark:bg-gray-800 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
+              >
+                <Heart className={`w-5 h-5 ${liked ? 'text-red-600' : ''}`} />
+                <span className="text-sm text-gray-700 dark:text-gray-300">{likesCount}</span>
               </button>
             </div>
 
@@ -130,6 +194,13 @@ export default function PropertyDetails() {
               </div>
             </div>
 
+            {/* Owner controls */}
+            {user && user.id === property.owner._id && (
+              <div className="mb-4">
+                <Link to={`/edit-property/${property._id}`} className="px-3 py-2 bg-yellow-400 rounded mr-2">Edit</Link>
+              </div>
+            )}
+
             {property.description && (
               <p className="text-gray-600 dark:text-gray-400 mb-6">{property.description}</p>
             )}
@@ -145,6 +216,7 @@ export default function PropertyDetails() {
               )}
               {property.bathrooms && (
                 <div className="text-center">
+                  <Bath className="w-6 h-6 mx-auto mb-2 text-primary-600 dark:text-primary-400" />
                   <div className="font-semibold">{property.bathrooms}</div>
                   <div className="text-sm text-gray-500">Bathrooms</div>
                 </div>
@@ -220,7 +292,20 @@ export default function PropertyDetails() {
             </div>
 
             {user ? (
-              <button className="w-full px-4 py-3 bg-gradient-to-r from-primary-600 to-secondary-600 text-white rounded-lg font-semibold hover:shadow-lg transition-all flex items-center justify-center gap-2 mb-3">
+              <button
+                onClick={() => {
+                  if (!property.owner?.email) {
+                    toast.error('Owner email not available')
+                    return
+                  }
+                  const subject = encodeURIComponent(`Inquiry about ${property.title}`)
+                  const body = encodeURIComponent(
+                    `Hi ${property.owner.name},\n\nI am interested in your property "${property.title}". Please let me know more details.\n\nThanks, ${user.name || ''}`
+                  )
+                  window.location.href = `mailto:${property.owner.email}?subject=${subject}&body=${body}`
+                }}
+                className="w-full px-4 py-3 bg-gradient-to-r from-primary-600 to-secondary-600 text-white rounded-lg font-semibold hover:shadow-lg transition-all flex items-center justify-center gap-2 mb-3"
+              >
                 <MessageSquare className="w-5 h-5" />
                 Chat with Owner
               </button>

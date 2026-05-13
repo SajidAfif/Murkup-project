@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Property Listings — Demo</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <h1 class="logo">HomeFinder</h1>
+      <nav class="nav">
+        <a href="#">Home</a>
+        <a href="#">List Property</a>
+        <a href="#">Profile</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="controls">
+      <div class="search">
+        <input id="searchInput" placeholder="Search by city, title or tag..." />
+        <button id="searchBtn">Search</button>
+      </div>
+      <div class="filters">
+        <label>Min Price
+          <input id="minPrice" type="number" placeholder="0" />
+        </label>
+        <label>Max Price
+          <input id="maxPrice" type="number" placeholder="999999" />
+        </label>
+        <label>Sort
+          <select id="sortSelect">
+            <option value="newest">Newest</option>
+            <option value="price-asc">Price ↑</option>
+            <option value="price-desc">Price ↓</option>
+          </select>
+        </label>
+        <button id="applyFilters">Apply</button>
+        <button id="resetFilters" class="muted">Reset</button>
+      </div>
+    </section>
+
+    <section id="listings" class="grid" aria-live="polite"></section>
+
+    <nav class="pagination" id="pagination"></nav>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">© <span id="year"></span> HomeFinder — Demo frontend</div>
+  </footer>
+
+  <script src="js/script.js"></script>
+</body>
+</html>

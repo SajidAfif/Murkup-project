@@ -67,6 +67,7 @@ const propertySchema = new mongoose.Schema<IProperty>(
     floor: Number,
     images: [String],
     amenities: [String],
+    likes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
     available: {
       type: Boolean,
       default: true,

@@ -8,6 +8,7 @@ interface IUser {
   password: string
   phone?: string
   nid?: string
+  verificationDocument?: string
   verified: boolean
   profileImage?: string
   userType: 'tenant' | 'owner'
@@ -25,6 +26,8 @@ const userSchema = new mongoose.Schema<IUser>(
       type: String,
       required: true,
       unique: true,
+      lowercase: true,
+      trim: true,
     },
     password: {
       type: String,
@@ -32,6 +35,7 @@ const userSchema = new mongoose.Schema<IUser>(
     },
     phone: String,
     nid: String,
+    verificationDocument: String,
     verified: {
       type: Boolean,
       default: false,
