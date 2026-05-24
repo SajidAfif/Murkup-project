@@ -1,11 +1,17 @@
-import { Response, NextFunction } from 'express'
+import { Response, NextFunction, Request } from 'express'
 
-export interface CustomRequest extends Express.Request {
-  userId?: string
-  user?: any
+declare global {
+  namespace Express {
+    interface Request {
+      userId?: string
+      user?: any
+    }
+  }
 }
 
-export const errorHandler = (err: any, req: CustomRequest, res: Response, next: NextFunction) => {
+export type CustomRequest = Request
+
+export const errorHandler = (err: any, req: Request, res: Response, next: NextFunction) => {
   console.error('Error:', err)
   
   const statusCode = err.statusCode || 500

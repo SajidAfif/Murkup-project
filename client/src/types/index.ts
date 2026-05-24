@@ -1,11 +1,24 @@
 export interface User {
   id: string
+  _id?: string
   name: string
   email: string
-  userType: 'tenant' | 'owner'
+  userType: 'tenant' | 'owner' | 'admin'
   verified: boolean
+  isBlocked?: boolean
   profileImage?: string
   phone?: string
+}
+
+export interface SiteSettings {
+  facebook?: string
+  instagram?: string
+  twitter?: string
+  linkedin?: string
+  phone?: string
+  email?: string
+  officeLat?: number
+  officeLng?: number
 }
 
 export interface Property {

@@ -1,7 +1,10 @@
 import React, { useState } from 'react'
-import { Search, Menu, X, Moon, Sun, LogOut } from 'lucide-react'
+import { Search, Menu, X, Moon, Sun, LogOut, Star } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../../store/authStore'
+import AddPropertyModal from '../Admin/AddPropertyModal'
+import { adminService } from '../../services/api'
+import toast from 'react-hot-toast'
 
 interface NavbarProps {
   isDark: boolean
@@ -11,6 +14,7 @@ interface NavbarProps {
 export default function Navbar({ isDark, onToggleDark }: NavbarProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
+  const [showAddProperty, setShowAddProperty] = useState(false)
   const { user, logout } = useAuthStore()
   const navigate = useNavigate()
 
@@ -27,6 +31,17 @@ export default function Navbar({ isDark, onToggleDark }: NavbarProps) {
     localStorage.removeItem('user')
     navigate('/')
     setIsMenuOpen(false)
+  }
+
+  const handleAddProperty = async (data: any) => {
+    try {
+      await adminService.createProperty(data)
+      setShowAddProperty(false)
+      toast.success('Property created successfully')
+      window.location.reload() // Or navigate to the new property, but reload is easiest to see it
+    } catch (err: any) {
+      toast.error(err.response?.data?.error || 'Failed to create property')
+    }
   }
 
   return (
@@ -90,18 +105,29 @@ export default function Navbar({ isDark, onToggleDark }: NavbarProps) {
                     </Link>
                   )}
                   {user.userType === 'admin' && (
-                    <Link
-                      to="/admin"
-                      className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium"
-                    >
-                      Admin
-                    </Link>
+                    <>
+                      <button
+                        onClick={() => setShowAddProperty(true)}
+                        className="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors font-medium"
+                      >
+                        Add Post
+                      </button>
+                      <Link
+                        to="/admin"
+                        className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium"
+                      >
+                        Admin Panel
+                      </Link>
+                    </>
                   )}
                   <Link
                     to="/profile"
-                    className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+                    className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors flex items-center gap-1"
                   >
                     {user.name}
+                    {user.userType === 'owner' && user.verified && (
+                      <Star className="w-4 h-4 fill-blue-500 text-blue-500" />
+                    )}
                   </Link>
                   <button
                     onClick={handleLogout}
@@ -180,10 +206,13 @@ export default function Navbar({ isDark, onToggleDark }: NavbarProps) {
                 )}
                 <Link
                   to="/profile"
-                  className="block px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg"
+                  className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg flex items-center gap-1"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   Profile
+                  {user.userType === 'owner' && user.verified && (
+                    <Star className="w-4 h-4 fill-blue-500 text-blue-500" />
+                  )}
                 </Link>
                 <button
                   onClick={handleLogout}
@@ -213,6 +242,13 @@ export default function Navbar({ isDark, onToggleDark }: NavbarProps) {
           </div>
         )}
       </div>
+
+      {showAddProperty && (
+        <AddPropertyModal
+          onClose={() => setShowAddProperty(false)}
+          onSave={handleAddProperty}
+        />
+      )}
     </nav>
   )
 }

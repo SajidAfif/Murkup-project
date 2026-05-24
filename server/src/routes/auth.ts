@@ -15,6 +15,10 @@ router.post('/signup', async (req: CustomRequest, res) => {
   try {
     const { name, email, password, userType } = req.body
 
+    if (userType === 'admin') {
+      return res.status(403).json({ error: 'Cannot register as an administrator.' })
+    }
+
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return res.status(400).json({ error: 'Invalid email format' })
     }
@@ -49,7 +53,7 @@ router.post('/signup', async (req: CustomRequest, res) => {
     const token = jwt.sign(
       { id: user._id, email: user.email },
       process.env.JWT_SECRET || 'secret',
-      { expiresIn: process.env.JWT_EXPIRE || '7d' }
+      { expiresIn: (process.env.JWT_EXPIRE || '7d') as any }
     )
     
     res.status(201).json({
@@ -82,6 +86,10 @@ router.post('/login', async (req: CustomRequest, res) => {
     if (!user) {
       return res.status(401).json({ error: 'Invalid email or password' })
     }
+
+    if (user.isBlocked) {
+      return res.status(403).json({ error: 'Your account has been blocked by the admin' })
+    }
     
     const isPasswordValid = await user.comparePassword(password)
     if (!isPasswordValid) {
@@ -91,7 +99,7 @@ router.post('/login', async (req: CustomRequest, res) => {
     const token = jwt.sign(
       { id: user._id, email: user.email },
       process.env.JWT_SECRET || 'secret',
-      { expiresIn: process.env.JWT_EXPIRE || '7d' }
+      { expiresIn: (process.env.JWT_EXPIRE || '7d') as any }
     )
     
     res.json({
@@ -143,6 +151,30 @@ router.post('/verify', auth, upload.single('document'), async (req: CustomReques
     res.json({ message: 'Verification submitted', user })
   } catch (error) {
     res.status(500).json({ error: 'Verification failed' })
+  }
+})
+
+// Change password
+router.patch('/change-password', auth, async (req: CustomRequest, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body
+
+    const user = await User.findById(req.userId)
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' })
+    }
+
+    const isPasswordValid = await user.comparePassword(currentPassword)
+    if (!isPasswordValid) {
+      return res.status(400).json({ error: 'Incorrect current password' })
+    }
+
+    user.password = newPassword
+    await user.save()
+
+    res.json({ message: 'Password changed successfully' })
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to change password' })
   }
 })
 

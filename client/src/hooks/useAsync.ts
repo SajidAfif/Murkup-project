@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 
 export const useAsync = <T,>(
   asyncFunction: () => Promise<T>,
@@ -24,7 +24,7 @@ export const useAsync = <T,>(
     }
   }, [asyncFunction])
 
-  useState(() => {
+  useEffect(() => {
     if (immediate) {
       execute()
     }

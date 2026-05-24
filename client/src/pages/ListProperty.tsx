@@ -1,8 +1,9 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Upload, MapPin, AlertCircle } from 'lucide-react'
+import { AlertCircle } from 'lucide-react'
 import { propertyService } from '../services/api'
 import { useAuthStore } from '../store/authStore'
+import MapPicker from '../components/MapPicker'
 import toast from 'react-hot-toast'
 
 export default function ListProperty() {
@@ -17,6 +18,8 @@ export default function ListProperty() {
     price: '',
     address: '',
     city: 'Dhaka',
+    latitude: 23.8103,
+    longitude: 90.4125,
     rooms: '',
     bathrooms: '',
     furnishing: 'unfurnished',
@@ -87,7 +90,7 @@ export default function ListProperty() {
       fd.append('propertyType', formData.propertyType)
       fd.append('rentalType', formData.rentalType)
       fd.append('price', formData.price)
-      fd.append('location', JSON.stringify({ address: formData.address, city: formData.city, latitude: 0, longitude: 0 }))
+      fd.append('location', JSON.stringify({ address: formData.address, city: formData.city, latitude: formData.latitude, longitude: formData.longitude }))
       if (formData.rooms) fd.append('rooms', formData.rooms)
       if (formData.bathrooms) fd.append('bathrooms', formData.bathrooms)
       fd.append('furnishing', formData.furnishing)
@@ -206,8 +209,16 @@ export default function ListProperty() {
               <div className="flex items-center gap-2 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
                 <AlertCircle className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0" />
                 <span className="text-sm text-blue-700 dark:text-blue-300">
-                  Address details will be used for map integration
+                  Please click on the map to pin your exact location.
                 </span>
+              </div>
+
+              <div>
+                <MapPicker 
+                  initialLat={formData.latitude} 
+                  initialLng={formData.longitude} 
+                  onLocationSelect={(lat, lng) => setFormData(prev => ({ ...prev, latitude: lat, longitude: lng }))}
+                />
               </div>
 
               <div>

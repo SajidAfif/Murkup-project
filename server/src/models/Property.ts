@@ -22,6 +22,7 @@ interface IProperty {
   amenities: string[]
   available: boolean
   code: string
+  likes?: mongoose.Schema.Types.ObjectId[]
   createdAt: Date
 }
 

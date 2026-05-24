@@ -24,6 +24,8 @@ export const authService = {
     api.get('/auth/profile'),
   verify: (formData: FormData) =>
     api.post('/auth/verify', formData, { headers: { 'Content-Type': 'multipart/form-data' } }),
+  changePassword: (data: any) =>
+    api.patch('/auth/change-password', data),
 }
 
 export const propertyService = {
@@ -55,6 +57,9 @@ export const adminService = {
   updateProperty: (id: string, data: any) => api.patch(`/admin/properties/${id}`, data),
   deleteProperty: (id: string) => api.delete(`/admin/properties/${id}`),
   createProperty: (data: any) => api.post('/admin/properties', data),
+  // Settings
+  getSettings: () => api.get('/admin/settings'),
+  updateSettings: (data: any) => api.patch('/admin/settings', data),
 }
 
 export default api

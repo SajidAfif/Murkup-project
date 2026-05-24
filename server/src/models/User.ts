@@ -10,8 +10,9 @@ interface IUser {
   nid?: string
   verificationDocument?: string
   verified: boolean
+  isBlocked: boolean
   profileImage?: string
-  userType: 'tenant' | 'owner'
+  userType: 'tenant' | 'owner' | 'admin'
   createdAt: Date
   comparePassword(password: string): Promise<boolean>
 }
@@ -43,8 +44,12 @@ const userSchema = new mongoose.Schema<IUser>(
     profileImage: String,
     userType: {
       type: String,
-      enum: ['tenant', 'owner'],
+      enum: ['tenant', 'owner', 'admin'],
       default: 'tenant',
+    },
+    isBlocked: {
+      type: Boolean,
+      default: false,
     },
   },
   { timestamps: true }

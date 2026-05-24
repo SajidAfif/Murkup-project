@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
+import AdminLogin from './pages/AdminLogin'
 import Navbar from './components/Layout/Navbar'
 import Footer from './components/Layout/Footer'
 import Home from './pages/Home'
@@ -48,6 +49,7 @@ export default function App() {
             <Route path="/profile" element={<Profile />} />
             <Route path="/list-property" element={<ListProperty />} />
             <Route path="/admin" element={<AdminPanel />} />
+            <Route path="/admin/login" element={<AdminLogin />} />
             <Route path="/edit-property/:id" element={<EditProperty />} />
           </Routes>
         </main>

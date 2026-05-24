@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { User, Mail, Phone, LogOut } from 'lucide-react'
+import { User, Mail, Phone, LogOut, Star } from 'lucide-react'
 import { useAuthStore } from '../store/authStore'
 import { useNavigate } from 'react-router-dom'
 import { authService } from '../services/api'
@@ -60,7 +60,12 @@ export default function Profile() {
             </span>
           </div>
           <div>
-            <h2 className="text-2xl font-bold">{user.name}</h2>
+            <h2 className="text-2xl font-bold flex items-center gap-2">
+              {user.name}
+              {user.userType === 'owner' && user.verified && (
+                <Star className="w-6 h-6 fill-blue-500 text-blue-500" />
+              )}
+            </h2>
             <p className="text-gray-600 dark:text-gray-400 capitalize">
               {user.userType === 'owner' ? 'Property Owner' : 'Renter/Tenant'}
             </p>

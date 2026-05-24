@@ -5,7 +5,6 @@ import { auth } from '../middleware/auth.js'
 import { Property } from '../models/Property.js'
 import { User } from '../models/User.js'
 import fs from 'fs'
-import path from 'path'
 
 const router = express.Router()
 
@@ -27,7 +26,7 @@ router.get('/', async (req, res) => {
       if (maxPrice) filter.price.$lte = Number(maxPrice)
     }
 
-    let properties = await Property.find(filter).populate('owner', 'name phone email')
+    let properties = await Property.find(filter).populate('owner', 'name phone email verified')
     // Convert stored paths to absolute URLs so frontend can load images
     const base = `${req.protocol}://${req.get('host')}`
     properties = properties.map((p: any) => {
@@ -42,8 +41,8 @@ router.get('/', async (req, res) => {
 })
 
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, 'uploads/properties'),
-  filename: (req, file, cb) => {
+  destination: (req: express.Request, file: Express.Multer.File, cb: (error: Error | null, destination: string) => void) => cb(null, 'uploads/properties'),
+  filename: (req: express.Request, file: Express.Multer.File, cb: (error: Error | null, filename: string) => void) => {
     const unique = Date.now() + '-' + Math.random().toString(36).slice(2)
     const ext = path.extname(file.originalname || '') || ''
     cb(null, `${unique}${ext}`)
@@ -53,7 +52,7 @@ const storage = multer.diskStorage({
 const upload = multer({
   storage,
   limits: { fileSize: 10 * 1024 * 1024 }, // 10 MB per file
-  fileFilter: (req, file, cb) => {
+  fileFilter: (req: express.Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
     const allowedMimes = new Set([
       'image/jpeg',
       'image/jpg',
@@ -117,7 +116,8 @@ router.post('/', auth, upload.array('images', 6), async (req, res) => {
       parsedLocation = location
     }
 
-    const images = (req.files as any[] | undefined)?.map((f) => f.path) || []
+    const filesArray = (req as any).files as Express.Multer.File[] | undefined
+    const images = filesArray?.map((f) => f.path) || []
 
     const property = new Property({
       title,
@@ -207,7 +207,8 @@ router.patch('/:id', auth, upload.array('images', 6), async (req, res) => {
     }
 
     // Add new uploaded images (append)
-    const added = (req.files as any[] | undefined)?.map((f) => f.path) || []
+    const addedFiles = (req as any).files as Express.Multer.File[] | undefined
+    const added = addedFiles?.map((f) => f.path) || []
     if (added.length > 0) prop.images = (prop.images || []).concat(added)
 
     await prop.save()

@@ -2,10 +2,11 @@ import React, { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { MapPin, Phone, Mail, Calendar, DoorOpen, Maximize2, Star, Heart, MessageSquare, Check, AlertCircle, Bath } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import { propertyService, authService } from '../services/api'
+import { propertyService, adminService } from '../services/api'
 import { Property } from '../types'
 import { useAuthStore } from '../store/authStore'
 import toast from 'react-hot-toast'
+import EditPropertyModal from '../components/Admin/EditPropertyModal'
 
 export default function PropertyDetails() {
   const { id } = useParams()
@@ -18,6 +19,7 @@ export default function PropertyDetails() {
   const [selectedImage, setSelectedImage] = useState(0)
   const [autoplay, setAutoplay] = useState(false)
   const [showBookingForm, setShowBookingForm] = useState(false)
+  const [isEditing, setIsEditing] = useState(false)
   const [bookingData, setBookingData] = useState({
     date: '',
     time: '',
@@ -76,6 +78,28 @@ export default function PropertyDetails() {
     toast.success('Booking request sent! We will contact you soon.')
     setShowBookingForm(false)
     setBookingData({ date: '', time: '' })
+  }
+
+  const handleDelete = async () => {
+    if (!confirm('Are you sure you want to delete this property?')) return
+    try {
+      await adminService.deleteProperty(id!)
+      toast.success('Property deleted successfully')
+      navigate('/')
+    } catch (err: any) {
+      toast.error('Failed to delete property')
+    }
+  }
+
+  const handleEditSave = async (propertyId: string, data: any) => {
+    try {
+      const res = await adminService.updateProperty(propertyId, data)
+      setProperty(res.data)
+      setIsEditing(false)
+      toast.success('Property updated successfully')
+    } catch (err: any) {
+      toast.error('Failed to update property')
+    }
   }
 
   if (loading) {
@@ -194,10 +218,31 @@ export default function PropertyDetails() {
               </div>
             </div>
 
-            {/* Owner controls */}
-            {user && user.id === property.owner._id && (
-              <div className="mb-4">
-                <Link to={`/edit-property/${property._id}`} className="px-3 py-2 bg-yellow-400 rounded mr-2">Edit</Link>
+            {/* Owner/Admin controls */}
+            {(user?.id === property.owner._id || user?.userType === 'admin') && (
+              <div className="mb-4 space-x-2">
+                {user?.id === property.owner._id ? (
+                  <Link to={`/edit-property/${property._id}`} className="px-4 py-2 bg-yellow-400 text-black font-medium rounded hover:bg-yellow-500">
+                    Edit Post
+                  </Link>
+                ) : null}
+
+                {user?.userType === 'admin' && (
+                  <>
+                    <button 
+                      onClick={() => setIsEditing(true)} 
+                      className="px-4 py-2 bg-yellow-400 text-black font-medium rounded hover:bg-yellow-500"
+                    >
+                      Admin Edit
+                    </button>
+                    <button 
+                      onClick={handleDelete} 
+                      className="px-4 py-2 bg-red-600 text-white font-medium rounded hover:bg-red-700"
+                    >
+                      Delete Post
+                    </button>
+                  </>
+                )}
               </div>
             )}
 
@@ -264,7 +309,12 @@ export default function PropertyDetails() {
                 </span>
               </div>
               <div>
-                <div className="font-semibold">{property.owner.name}</div>
+                <div className="font-semibold flex items-center gap-1">
+                  {property.owner.name}
+                  {property.owner.verified && (
+                    <Star className="w-4 h-4 fill-blue-500 text-blue-500" />
+                  )}
+                </div>
                 <div className="flex items-center gap-1 text-yellow-500">
                   {property.owner.verified && <Check className="w-4 h-4" />}
                   <span className="text-sm text-gray-500">
@@ -380,6 +430,14 @@ export default function PropertyDetails() {
           </div>
         </aside>
       </div>
+
+      {isEditing && (
+        <EditPropertyModal
+          property={property}
+          onClose={() => setIsEditing(false)}
+          onSave={handleEditSave}
+        />
+      )}
     </div>
   )
 }
