@@ -1,5 +1,4 @@
 import React, { useState } from 'react'
-import MapPicker from '../MapPicker'
 
 interface EditSettingsModalProps {
   settings: any
@@ -14,9 +13,7 @@ export default function EditSettingsModal({ settings, onClose, onSave }: EditSet
     twitter: settings?.twitter || '',
     linkedin: settings?.linkedin || '',
     phone: settings?.phone || '',
-    email: settings?.email || '',
-    officeLat: settings?.officeLat || 23.8103,
-    officeLng: settings?.officeLng || 90.4125
+    email: settings?.email || ''
   })
   const [loading, setLoading] = useState(false)
 
@@ -28,8 +25,8 @@ export default function EditSettingsModal({ settings, onClose, onSave }: EditSet
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 overflow-y-auto">
-      <div className="bg-white dark:bg-gray-900 rounded-lg shadow-xl w-full max-w-2xl my-8">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+      <div className="bg-white dark:bg-gray-900 rounded-lg shadow-xl w-full max-w-md overflow-hidden">
         <div className="p-4 border-b dark:border-gray-800 flex justify-between items-center">
           <h2 className="text-xl font-bold">Edit Contact & Settings</h2>
           <button type="button" onClick={onClose} className="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">&times;</button>
@@ -69,15 +66,6 @@ export default function EditSettingsModal({ settings, onClose, onSave }: EditSet
               value={formData.instagram}
               onChange={(e) => setFormData({ ...formData, instagram: e.target.value })}
               className="w-full px-3 py-2 border rounded dark:bg-gray-800 dark:border-gray-700 outline-none focus:ring-2 focus:ring-primary-500"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">Office Location (Map)</label>
-            <p className="text-sm text-gray-500 mb-2">Pin the location of your main office.</p>
-            <MapPicker
-              initialLat={formData.officeLat}
-              initialLng={formData.officeLng}
-              onLocationSelect={(lat, lng) => setFormData(prev => ({ ...prev, officeLat: lat, officeLng: lng }))}
             />
           </div>
           <div className="flex justify-end gap-2 pt-4">

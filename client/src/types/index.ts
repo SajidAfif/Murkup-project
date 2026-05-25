@@ -17,8 +17,6 @@ export interface SiteSettings {
   linkedin?: string
   phone?: string
   email?: string
-  officeLat?: number
-  officeLng?: number
 }
 
 export interface Property {

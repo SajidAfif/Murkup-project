@@ -26,7 +26,7 @@ router.get('/', async (req, res) => {
             if (maxPrice)
                 filter.price.$lte = Number(maxPrice);
         }
-        let properties = await Property.find(filter).populate('owner', 'name phone email verified');
+        let properties = await Property.find(filter).populate('owner', 'name phone email');
         // Convert stored paths to absolute URLs so frontend can load images
         const base = `${req.protocol}://${req.get('host')}`;
         properties = properties.map((p) => {

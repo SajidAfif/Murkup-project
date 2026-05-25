@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { propertyService } from '../services/api'
 import toast from 'react-hot-toast'
-import MapPicker from '../components/MapPicker'
 
 export default function EditProperty() {
   const { id } = useParams()
@@ -16,8 +15,6 @@ export default function EditProperty() {
     price: '',
     address: '',
     city: 'Dhaka',
-    latitude: 23.8103,
-    longitude: 90.4125,
     rooms: '',
     bathrooms: '',
     furnishing: 'unfurnished',
@@ -47,8 +44,6 @@ export default function EditProperty() {
         price: p.price || '',
         address: p.location?.address || '',
         city: p.location?.city || 'Dhaka',
-        latitude: p.location?.latitude || 23.8103,
-        longitude: p.location?.longitude || 90.4125,
         rooms: p.rooms || '',
         bathrooms: p.bathrooms || '',
         furnishing: p.furnishing || 'unfurnished',
@@ -92,7 +87,7 @@ export default function EditProperty() {
       fd.append('propertyType', formData.propertyType)
       fd.append('rentalType', formData.rentalType)
       fd.append('price', String(formData.price))
-      fd.append('location', JSON.stringify({ address: formData.address, city: formData.city, latitude: formData.latitude, longitude: formData.longitude }))
+      fd.append('location', JSON.stringify({ address: formData.address, city: formData.city, latitude: 0, longitude: 0 }))
       if (formData.rooms) fd.append('rooms', String(formData.rooms))
       if (formData.bathrooms) fd.append('bathrooms', String(formData.bathrooms))
       fd.append('furnishing', formData.furnishing)
@@ -128,16 +123,6 @@ export default function EditProperty() {
           <div>
             <label className="block text-sm font-medium mb-2">Description</label>
             <textarea name="description" value={formData.description} onChange={handleChange} rows={4} className="w-full px-4 py-2 rounded" />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-2">Location (Map)</label>
-            <p className="text-sm text-gray-500 mb-2">Click to update coordinates</p>
-            <MapPicker
-              initialLat={formData.latitude}
-              initialLng={formData.longitude}
-              onLocationSelect={(lat, lng) => setFormData((f: any) => ({ ...f, latitude: lat, longitude: lng }))}
-            />
           </div>
 
           <div>

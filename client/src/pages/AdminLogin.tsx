@@ -6,8 +6,8 @@ import { Shield } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 export default function AdminLogin() {
-  const [email, setEmail] = useState('sajidmortujaafif0@gmail.com')
-  const [password, setPassword] = useState('admin441')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
   const { login } = useAuthStore()
   const navigate = useNavigate()
   const [loading, setLoading] = useState(false)

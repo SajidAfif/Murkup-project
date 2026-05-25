@@ -1,5 +1,4 @@
 import React, { useState } from 'react'
-import MapPicker from '../MapPicker'
 
 interface EditPropertyModalProps {
   property: any
@@ -19,23 +18,13 @@ export default function EditPropertyModal({ property, onClose, onSave }: EditPro
     sqft: property.sqft || 0,
     furnishing: property.furnishing || 'unfurnished',
     available: property.available !== undefined ? property.available : true,
-    latitude: property.location?.latitude || 23.8103,
-    longitude: property.location?.longitude || 90.4125,
   })
   const [loading, setLoading] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
-    const updateData = {
-      ...formData,
-      location: {
-        ...property.location,
-        latitude: formData.latitude,
-        longitude: formData.longitude
-      }
-    }
-    await onSave(property._id, updateData)
+    await onSave(property._id, formData)
     setLoading(false)
   }
 
@@ -65,15 +54,6 @@ export default function EditPropertyModal({ property, onClose, onSave }: EditPro
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 className="w-full px-3 py-2 border rounded dark:bg-gray-800 dark:border-gray-700 outline-none focus:ring-2 focus:ring-primary-500"
-              />
-            </div>
-            <div className="md:col-span-2">
-              <label className="block text-sm font-medium mb-1">Location (Map)</label>
-              <p className="text-sm text-gray-500 mb-2">Click to update coordinates</p>
-              <MapPicker
-                initialLat={formData.latitude}
-                initialLng={formData.longitude}
-                onLocationSelect={(lat, lng) => setFormData(prev => ({ ...prev, latitude: lat, longitude: lng }))}
               />
             </div>
             <div>

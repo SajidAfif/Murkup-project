@@ -1,33 +1,14 @@
-import { MapPin, Users, DoorOpen, Maximize2, Zap, Trash2, Star, UserCircle } from 'lucide-react'
+import { MapPin, Users, DoorOpen, Maximize2, Zap } from 'lucide-react'
 import { Property } from '../types'
 import { Link } from 'react-router-dom'
-import { useAuthStore } from '../store/authStore'
-import { adminService } from '../services/api'
-import toast from 'react-hot-toast'
 
 interface PropertyCardProps {
   property: Property
 }
 
 export default function PropertyCard({ property }: PropertyCardProps) {
-  const { user } = useAuthStore()
-
-  const handleDelete = async (e: React.MouseEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    if (!window.confirm('Are you sure you want to delete this post?')) return
-    
-    try {
-      await adminService.deleteProperty(property._id)
-      toast.success('Post removed successfully')
-      window.location.reload()
-    } catch (err) {
-      toast.error('Failed to remove post')
-    }
-  }
-
   return (
-    <Link to={`/property/${property._id}`} className="block">
+    <Link to={`/property/${property._id}`}>
       <div className="bg-white dark:bg-gray-900 rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
         {/* Image */}
         <div className="relative h-48 bg-gray-200 dark:bg-gray-800 overflow-hidden">
@@ -42,19 +23,10 @@ export default function PropertyCard({ property }: PropertyCardProps) {
               No image
             </div>
           )}
-          <div className="absolute top-3 right-3 flex flex-col items-end gap-2">
+          <div className="absolute top-3 right-3">
             <span className="bg-primary-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
               {property.rentalType === 'rent' ? 'To Rent' : property.rentalType === 'sale' ? 'For Sale' : 'Sublet'}
             </span>
-            {user?.userType === 'admin' && (
-              <button 
-                onClick={handleDelete}
-                className="bg-red-500 text-white p-2 rounded-full hover:bg-red-600 shadow-md transition-colors"
-                title="Remove Post"
-              >
-                <Trash2 className="w-4 h-4" />
-              </button>
-            )}
           </div>
         </div>
 
@@ -71,22 +43,9 @@ export default function PropertyCard({ property }: PropertyCardProps) {
           </div>
 
           {/* Location */}
-          <div className="flex items-center text-gray-600 dark:text-gray-400 mb-2">
+          <div className="flex items-center text-gray-600 dark:text-gray-400 mb-3">
             <MapPin className="w-4 h-4 mr-2 flex-shrink-0" />
             <span className="text-sm line-clamp-1">{property.location.address}</span>
-          </div>
-
-          {/* Owner Info */}
-          <div className="flex items-center gap-1.5 text-gray-700 dark:text-gray-300 mb-4 pb-3 border-b border-gray-100 dark:border-gray-800">
-            <UserCircle className="w-4 h-4 text-gray-400" />
-            <span className="text-sm font-medium line-clamp-1 flex-1">
-              {property.owner?.name || 'Unknown Owner'}
-            </span>
-            {property.owner?.verified && (
-              <span title="Verified Owner" className="flex-shrink-0">
-                <Star className="w-4 h-4 fill-blue-500 text-blue-500" />
-              </span>
-            )}
           </div>
 
           {/* Features */}

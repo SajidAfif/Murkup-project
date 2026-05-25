@@ -116,19 +116,7 @@ export default function Footer() {
               </div>
               <div className="flex items-start">
                 <MapPin className="w-4 h-4 mr-2 text-primary-400 mt-1 flex-shrink-0" />
-                {settings?.officeLat && settings?.officeLng ? (
-                  <a 
-                    href={`https://www.google.com/maps?q=${settings.officeLat},${settings.officeLng}`} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="hover:text-primary-400 hover:underline"
-                    title="View office on Google Maps"
-                  >
-                    View Office on Map
-                  </a>
-                ) : (
-                  <span>Dhaka, Bangladesh</span>
-                )}
+                <span>Dhaka, Bangladesh</span>
               </div>
             </div>
           </div>

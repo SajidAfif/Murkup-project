@@ -6,8 +6,6 @@ export interface ISiteSettings {
     linkedin?: string;
     phone?: string;
     email?: string;
-    officeLat?: number;
-    officeLng?: number;
     createdAt: Date;
     updatedAt: Date;
 }

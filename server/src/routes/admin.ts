@@ -55,9 +55,7 @@ router.delete('/users/:id', auth, adminOnly, async (req, res) => {
 // Properties
 router.get('/properties', auth, adminOnly, async (req, res) => {
   try {
-    const properties = await Property.find().populate('owner', 'name email verified')
-    
-    const base = `${req.protocol}://${req.get('host')}`
+    const properties = await Property.find().populate('owner', 'name email')
     res.json(properties)
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch properties' })
@@ -122,7 +120,7 @@ router.get('/settings', async (req, res) => {
 
 router.patch('/settings', auth, adminOnly, async (req, res) => {
   try {
-    const { facebook, instagram, twitter, linkedin, phone, email, officeLat, officeLng } = req.body
+    const { facebook, instagram, twitter, linkedin, phone, email } = req.body
     let settings = await SiteSettings.findOne()
     if (!settings) {
       settings = new SiteSettings()
@@ -133,13 +131,10 @@ router.patch('/settings', auth, adminOnly, async (req, res) => {
     if (linkedin !== undefined) settings.linkedin = linkedin
     if (phone !== undefined) settings.phone = phone
     if (email !== undefined) settings.email = email
-    if (officeLat !== undefined) settings.officeLat = officeLat
-    if (officeLng !== undefined) settings.officeLng = officeLng
     await settings.save()
     res.json(settings)
   } catch (error) {
     res.status(500).json({ error: 'Failed to update settings' })
   }
 })
-
 export default router

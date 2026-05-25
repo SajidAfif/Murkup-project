@@ -26,7 +26,7 @@ router.get('/', async (req, res) => {
       if (maxPrice) filter.price.$lte = Number(maxPrice)
     }
 
-    let properties = await Property.find(filter).populate('owner', 'name phone email verified')
+    let properties = await Property.find(filter).populate('owner', 'name phone email')
     // Convert stored paths to absolute URLs so frontend can load images
     const base = `${req.protocol}://${req.get('host')}`
     properties = properties.map((p: any) => {
@@ -198,7 +198,7 @@ router.patch('/:id', auth, upload.array('images', 6), async (req, res) => {
             try {
               const p = path.isAbsolute(img) ? img : path.join(process.cwd(), img)
               if (fs.existsSync(p)) fs.unlinkSync(p)
-            } catch (e) {}
+            } catch (e) { }
             return false
           }
           return true
@@ -252,7 +252,7 @@ router.post('/:id/like', auth, async (req, res) => {
       liked = false
     } else {
       (prop as any).likes = (prop as any).likes || []
-      ;(prop as any).likes.push(userId)
+        ; (prop as any).likes.push(userId)
       liked = true
     }
 
