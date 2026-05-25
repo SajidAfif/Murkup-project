@@ -1,0 +1,177 @@
+================================================================================
+                    TO-LET MARKETPLACE - SYSTEM ARCHITECTURE
+================================================================================
+
+This document describes the high-level architecture, directory layout, database 
+relations, and components of the To-LET rental property marketplace platform.
+
+--------------------------------------------------------------------------------
+1. HIGH-LEVEL ARCHITECTURE OVERVIEW
+--------------------------------------------------------------------------------
+
+The system is designed as a modular Monorepo with two primary workspaces managed 
+by npm:
+- client (Frontend SPA)
+- server (REST API Backend)
+
++------------------+             HTTP / JSON             +--------------------+
+|  REACT CLIENT    | <=================================> |  EXPRESS BACKEND   |
+|  (Vite + TS)     |         (JWT Authentication)        |   (NodeJS + TS)    |
++------------------+                                     +--------------------+
+         |                                                          |
+         | Google Maps Embed /                                      | Mongoose ODM
+         v Places Autocomplete                                      v
++------------------+                                     +--------------------+
+|   GOOGLE MAPS    |                                     |    MONGODB DB      |
+|     APIs         |                                     |  (tolet database)  |
++------------------+                                     +--------------------+
+
+
+--------------------------------------------------------------------------------
+2. TECHNICAL STACK
+--------------------------------------------------------------------------------
+
+FRONTEND:
+- React (Single Page Application)
+- TypeScript (Type safety across all views and data interfaces)
+- Vite (Fast development server and bundling)
+- Tailwind CSS & Custom CSS (Clean UI styling with responsive design elements)
+- Zustand (Ultra-lightweight global client authentication state)
+- Axios (HTTP client with authorization interceptors)
+- @react-google-maps/api (Interactive Google Map pin drop location picker)
+- Lucide React (Sleek UI icon pack)
+
+BACKEND:
+- Node.js (V8 runtime engine)
+- Express (Web server framework)
+- TypeScript (Type-safe API requests, models, and middleware)
+- MongoDB + Mongoose (NoSQL Document Store & Object Document Mapper)
+- JSON Web Token (JWT) (Stateless token-based authorization)
+- bcryptjs (Cryptographic password hashing)
+- Multer (Multipart/form-data processor for file/image uploads)
+
+
+--------------------------------------------------------------------------------
+3. DIRECTORY TREE STRUCTURE
+--------------------------------------------------------------------------------
+
+Murkup-project/
+├── client/                     # FRONTEND SPA
+│   ├── src/
+│   │   ├── components/         # Reusable Components
+│   │   │   ├── Admin/          # Modals for admin actions
+│   │   │   │   ├── AddPropertyModal.tsx
+│   │   │   │   ├── EditPropertyModal.tsx
+│   │   │   │   ├── EditSettingsModal.tsx
+│   │   │   │   └── EditUserModal.tsx
+│   │   │   ├── Layout/         # Header and Footer
+│   │   │   │   ├── Navbar.tsx
+│   │   │   │   └── Footer.tsx
+│   │   │   ├── FilterPanel.tsx # Property search filter drawer
+│   │   │   ├── MapPicker.tsx   # Google Maps draggable pin interface
+│   │   │   ├── Pagination.tsx  # Catalog pagination controls
+│   │   │   └── PropertyCard.tsx# Property overview preview cards
+│   │   ├── pages/              # Routed Views
+│   │   │   ├── Auth/           # Signup & Login page wrappers
+│   │   │   ├── AdminLogin.tsx  # Prepopulated admin login
+│   │   │   ├── AdminPanel.tsx  # User, property and settings manager
+│   │   │   ├── Home.tsx        # Homepage search & catalog list
+│   │   │   ├── Profile.tsx     # Account settings & verification uploads
+│   │   │   ├── ListProperty.tsx# Create house listing view
+│   │   │   ├── EditProperty.tsx# Modify house listing view
+│   │   │   ├── PropertyDetails.tsx # Detail page with reviews & contact
+│   │   │   └── SearchResults.tsx # Dynamic query filter results
+│   │   ├── services/           # Axios API configuration routes
+│   │   ├── store/              # Zustand global authentication state
+│   │   ├── types/              # Unified TypeScript definitions
+│   │   └── index.css           # Design tokens, variables & fonts
+│   
+├── server/                     # BACKEND API
+│   ├── src/
+│   │   ├── config/             # DB setup & startup seeding script
+│   │   ├── middleware/         # Auth verify, admin restrictions & error handler
+│   │   ├── models/             # Mongoose schemas
+│   │   │   ├── User.ts         # User profiles (tenant, owner, admin)
+│   │   │   ├── Property.ts     # Property listing details
+│   │   │   ├── Review.ts       # Tenant property reviews
+│   │   │   └── SiteSettings.ts # Admin global details (e.g. office maps)
+│   │   ├── routes/             # Express API Endpoints
+│   │   │   ├── auth.ts         # Authentication, uploads & profile management
+│   │   │   ├── properties.ts   # Property CRUD, likes, and ratings
+│   │   │   └── admin.ts        # Admin override tools & global setting updates
+│   │   └── index.ts            # Entrypoint file
+│   └── uploads/                # Local asset directories (profile images, verification, etc.)
+
+
+--------------------------------------------------------------------------------
+4. DATA MODELS & SCHEMAS
+--------------------------------------------------------------------------------
+
+A. USER MODEL (`User.ts`)
+- Name (String, Required)
+- Email (String, Required, Unique, Lowercase)
+- Password (String, Required, BCrypt Hash)
+- Phone (String)
+- NID (String, Optional)
+- VerificationDocument (String, file path)
+- Verified (Boolean, default false) -> Displays Blue Star verification badge
+- UserType (String, enum: ['tenant', 'owner', 'admin'])
+- IsBlocked (Boolean, default false)
+- ProfileImage (String)
+
+B. PROPERTY MODEL (`Property.ts`)
+- Title (String, Required)
+- Description (String)
+- Owner (ObjectId, Ref: 'User') -> One-to-Many relation
+- PropertyType (String, enum: ['flat', 'room', 'office', 'shop', 'hostel'])
+- RentalType (String, enum: ['rent', 'sale', 'sublet'])
+- Price (Number, Required)
+- Location:
+  - Address (String)
+  - City (String)
+  - Latitude (Number)
+  - Longitude (Number)
+- Rooms / Bathrooms / Sqft / Floor (Numbers)
+- Furnishing (String, enum: ['furnished', 'unfurnished', 'semi-furnished'])
+- Images (Array of strings)
+- Amenities (Array of strings)
+- Likes (Array of ObjectIds, Ref: 'User')
+- Available (Boolean, default true)
+- Code (String, Unique)
+
+C. SITE SETTINGS MODEL (`SiteSettings.ts`)
+- Facebook / Instagram / Twitter / Linkedin (Strings)
+- Phone / Email (Strings)
+- OfficeLat (Number, default Dhaka coordinate)
+- OfficeLng (Number, default Dhaka coordinate)
+
+
+--------------------------------------------------------------------------------
+5. SECURITY & ACCESS RESTRICTIONS
+--------------------------------------------------------------------------------
+
+1. JWT Authorization:
+   When a user logs in, a JWT payload is generated containing `{ id: user._id, userType: user.userType }`. 
+   All secure backend endpoints run the `auth` middleware to extract the token from the 
+   `Authorization: Bearer <token>` header, attaching user context.
+
+2. Role-Based Admin Verification (`adminOnly` Middleware):
+   Restricts high-level configuration and deletion requests to administrators.
+   ```typescript
+   if (!user || user.userType !== 'admin') {
+     return res.status(403).json({ error: 'Admin access required' })
+   }
+   ```
+
+3. Hardcoded Default Administrator Account:
+   On database startup (`connectDB()`), the server automatically runs an initialization routine:
+   - Verifies whether an admin with email `sajidmortujaafif0@gmail.com` exists.
+   - If missing, it creates the administrator account with the password `admin441`.
+   - If present, it ensures that the role is locked to `admin` and its password matches `admin441`.
+   - The login form on the client is pre-filled with these credentials for single-click access.
+
+4. NID & Blue Star Verification:
+   Owners upload verification documents via `/profile`. Upon admin review, their verified status 
+   updates to `true`, displaying a specialized "Blue Star Verified" trust badge on their property 
+   listings.
+================================================================================
