@@ -15,19 +15,11 @@
     "noEmit": true,
     "jsx": "react-jsx",
     "strict": true,
+    "forceConsistentCasingInFileNames": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["src/*"],
-      "@components/*": ["src/components/*"],
-      "@pages/*": ["src/pages/*"],
-      "@hooks/*": ["src/hooks/*"],
-      "@utils/*": ["src/utils/*"],
-      "@services/*": ["src/services/*"],
-      "@types/*": ["src/types/*"]
-    }
+    "ignoreDeprecations": "5.0"
   },
   "include": ["src"],
   "references": [{ "path": "./tsconfig.node.json" }]

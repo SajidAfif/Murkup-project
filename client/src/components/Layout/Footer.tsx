@@ -7,6 +7,13 @@ import { useAuthStore } from '../../store/authStore'
 import EditSettingsModal from '../Admin/EditSettingsModal'
 import toast from 'react-hot-toast'
 
+const DEFAULT_SOCIALS = {
+  facebook: 'https://facebook.com',
+  instagram: 'https://instagram.com',
+  twitter: 'https://x.com',
+  linkedin: 'https://linkedin.com',
+}
+
 export default function Footer() {
   const [settings, setSettings] = useState<SiteSettings | null>(null)
   const [isEditing, setIsEditing] = useState(false)
@@ -127,29 +134,16 @@ export default function Footer() {
           <div className="flex items-center justify-between">
             <p className="text-gray-400 text-sm">&copy; 2024 To-LET. All rights reserved.</p>
             <div className="flex space-x-4">
-              {settings?.facebook && (
-                <a href={settings.facebook} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-primary-400 transition-colors">
-                  <Facebook className="w-5 h-5" />
+              {[
+                { key: 'facebook', href: settings?.facebook || DEFAULT_SOCIALS.facebook, icon: Facebook },
+                { key: 'instagram', href: settings?.instagram || DEFAULT_SOCIALS.instagram, icon: Instagram },
+                { key: 'twitter', href: settings?.twitter || DEFAULT_SOCIALS.twitter, icon: Twitter },
+                { key: 'linkedin', href: settings?.linkedin || DEFAULT_SOCIALS.linkedin, icon: Linkedin },
+              ].map(({ key, href, icon: Icon }) => (
+                <a key={key} href={href} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-primary-400 transition-colors">
+                  <Icon className="w-5 h-5" />
                 </a>
-              )}
-              {settings?.instagram && (
-                <a href={settings.instagram} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-primary-400 transition-colors">
-                  <Instagram className="w-5 h-5" />
-                </a>
-              )}
-              {settings?.twitter && (
-                <a href={settings.twitter} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-primary-400 transition-colors">
-                  <Twitter className="w-5 h-5" />
-                </a>
-              )}
-              {settings?.linkedin && (
-                <a href={settings.linkedin} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-primary-400 transition-colors">
-                  <Linkedin className="w-5 h-5" />
-                </a>
-              )}
-              {!settings?.facebook && !settings?.instagram && !settings?.twitter && !settings?.linkedin && (
-                <p className="text-gray-500 text-sm">Follow us on social media</p>
-              )}
+              ))}
             </div>
           </div>
         </div>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { User, Mail, Phone, LogOut, Star } from 'lucide-react'
 import { useAuthStore } from '../store/authStore'
 import { useNavigate } from 'react-router-dom'
@@ -8,6 +8,15 @@ import toast from 'react-hot-toast'
 export default function Profile() {
   const { user, logout } = useAuthStore()
   const navigate = useNavigate()
+  const [nid, setNid] = useState('')
+  const [file, setFile] = useState<File | null>(null)
+  const [submitting, setSubmitting] = useState(false)
+
+  useEffect(() => {
+    if (!user) {
+      navigate('/login')
+    }
+  }, [user, navigate])
 
   const handleLogout = () => {
     logout()
@@ -17,21 +26,30 @@ export default function Profile() {
   }
 
   if (!user) {
-    navigate('/login')
     return null
   }
 
-  const [nid, setNid] = useState('')
-  const [file, setFile] = useState<File | null>(null)
-  const [submitting, setSubmitting] = useState(false)
-
   const handleVerifySubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (user.userType !== 'owner') {
+      return toast.error('Only property owners can verify their account')
+    }
+
+    const normalizedNid = nid.trim()
+    if (!normalizedNid) {
+      return toast.error('Please enter your NID or passport number')
+    }
+
+    if (!/^[A-Za-z0-9]{6,20}$/.test(normalizedNid)) {
+      return toast.error('Use a valid NID or passport number with 6-20 letters or digits')
+    }
+
     if (!file) return toast.error('Please select a document')
+
     setSubmitting(true)
     try {
       const fd = new FormData()
-      fd.append('nid', nid)
+      fd.append('nid', normalizedNid)
       fd.append('document', file)
 
       await authService.verify(fd)
@@ -39,7 +57,9 @@ export default function Profile() {
       const { data } = await authService.getProfile()
       useAuthStore.getState().setUser(data)
       localStorage.setItem('user', JSON.stringify(data))
-      toast.success('Verification submitted')
+      setNid('')
+      setFile(null)
+      toast.success('Verification submitted successfully')
     } catch (err) {
       console.error(err)
       toast.error('Verification failed')

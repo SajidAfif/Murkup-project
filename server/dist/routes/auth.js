@@ -107,18 +107,23 @@ router.get('/profile', auth, async (req, res) => {
 // Submit verification (nid + document)
 router.post('/verify', auth, upload.single('document'), async (req, res) => {
     try {
-        const nid = req.body.nid;
+        const nid = typeof req.body.nid === 'string' ? req.body.nid.trim() : '';
         const file = req.file;
         const user = await User.findById(req.userId);
         if (!user)
             return res.status(404).json({ error: 'User not found' });
-        if (nid)
-            user.nid = nid;
-        if (file)
-            user.verificationDocument = file.path || file.filename;
-        // For now, auto-verify when a document is submitted. In future, add admin review.
-        if (nid && file)
-            user.verified = true;
+        if (user.userType !== 'owner') {
+            return res.status(403).json({ error: 'Only property owners can submit verification' });
+        }
+        if (!nid || !/^[A-Za-z0-9]{6,20}$/.test(nid)) {
+            return res.status(400).json({ error: 'Please provide a valid NID or passport number' });
+        }
+        if (!file) {
+            return res.status(400).json({ error: 'Please upload your NID or passport document' });
+        }
+        user.nid = nid;
+        user.verificationDocument = file.path || file.filename;
+        user.verified = true;
         await user.save();
         res.json({ message: 'Verification submitted', user });
     }

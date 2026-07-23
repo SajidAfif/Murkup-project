@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react'
 import {
   Users, Building2, Settings, LayoutDashboard, Shield, Search,
   UserCheck, UserX, Ban, Trash2, Pencil, Plus, X, Save,
-  Eye, ChevronDown, TrendingUp, Home, CheckCircle2, XCircle
+  TrendingUp, Home, CheckCircle2, XCircle
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 

@@ -13,6 +13,8 @@ import Profile from './pages/Profile'
 import ListProperty from './pages/ListProperty'
 import AdminPanel from './pages/AdminPanel'
 import EditProperty from './pages/EditProperty'
+import TermsPage from './pages/TermsPage'
+import PrivacyPage from './pages/PrivacyPage'
 import { useAuthStore } from './store/authStore'
 
 export default function App() {
@@ -51,6 +53,8 @@ export default function App() {
             <Route path="/admin" element={<AdminPanel />} />
             <Route path="/admin/login" element={<AdminLogin />} />
             <Route path="/edit-property/:id" element={<EditProperty />} />
+            <Route path="/terms" element={<TermsPage />} />
+            <Route path="/privacy" element={<PrivacyPage />} />
           </Routes>
         </main>
         <Footer />
