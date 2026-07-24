@@ -1,0 +1,66 @@
+
+> tolet-website@1.0.0 dev
+> concurrently "npm run dev --workspace=client" "npm run dev --workspace=server"
+
+[0] 
+[0] > tolet-client@1.0.0 dev
+[0] > vite
+[0] 
+[1] 
+[1] > tolet-server@1.0.0 dev
+[1] > tsx watch src/index.ts
+[1] 
+[0] Port 5173 is in use, trying another one...
+[0] 
+[0]   VITE v5.4.21  ready in 1716 ms
+[0] 
+[0]   ➜  Local:   http://localhost:5174/
+[0]   ➜  Network: use --host to expose
+[1] MongoDB connected successfully
+[1] node:events:487
+[1]       throw er; // Unhandled 'error' event
+[1]       ^
+[1] 
+[1] Error: listen EADDRINUSE: address already in use :::5000
+[1]     at Server.setupListenHandle [as _listen2] (node:net:2002:16)
+[1]     at listenInCluster (node:net:2059:12)
+[1]     at Server.listen (node:net:2164:7)
+[1]     at app.listen (/home/bolt/Documents/Murkup Project/Murkup-project/node_modules/express/lib/application.js:635:24)
+[1]     at <anonymous> (/home/bolt/Documents/Murkup Project/Murkup-project/server/src/index.ts:44:5)
+[1]     at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+[1] Emitted 'error' event on Server instance at:
+[1]     at emitErrorNT (node:net:2038:8)
+[1]     at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+[1]   code: 'EADDRINUSE',
+[1]   errno: -98,
+[1]   syscall: 'listen',
+[1]   address: '::',
+[1]   port: 5000
+[1] }
+[1] 
+[1] Node.js v24.15.0
+[0] 5:21:26 PM [vite] vite.config.ts changed, restarting server...
+[1] 5:21:26 PM [tsx] unlink in ./src/config/database.ts Rerunning...
+c5:21:27 PM [vite] server restarted.
+[0] 
+[0]   ➜  Local:   http://localhost:5174/
+[0]   ➜  Network: http://192.168.0.104:5174/
+[1] 
+[1] node:internal/modules/run_main:107
+[1]     triggerUncaughtException(
+[1]     ^
+[1] Error [ERR_MODULE_NOT_FOUND]: Cannot find package 'mongodb-memory-server' imported from /home/bolt/Documents/Murkup Project/Murkup-project/server/src/config/database.ts
+[1]     at Object.getPackageJSONURL (node:internal/modules/package_json_reader:301:9)
+[1]     at packageResolve (node:internal/modules/esm/resolve:764:81)
+[1]     at moduleResolve (node:internal/modules/esm/resolve:855:18)
+[1]     at defaultResolve (node:internal/modules/esm/resolve:988:11)
+[1]     at nextResolve (node:internal/modules/esm/hooks:785:28)
+[1]     at resolveBase (file:///home/bolt/Documents/Murkup%20Project/Murkup-project/node_modules/tsx/dist/esm/index.mjs?1784892088424:2:3744)
+[1]     at resolveDirectory (file:///home/bolt/Documents/Murkup%20Project/Murkup-project/node_modules/tsx/dist/esm/index.mjs?1784892088424:2:4243)
+[1]     at resolveTsPaths (file:///home/bolt/Documents/Murkup%20Project/Murkup-project/node_modules/tsx/dist/esm/index.mjs?1784892088424:2:4984)
+[1]     at async resolve (file:///home/bolt/Documents/Murkup%20Project/Murkup-project/node_modules/tsx/dist/esm/index.mjs?1784892088424:2:5355)
+[1]     at async nextResolve (node:internal/modules/esm/hooks:785:22) {
+[1]   code: 'ERR_MODULE_NOT_FOUND'
+[1] }
+[1] 
+[1] Node.js v24.15.0
