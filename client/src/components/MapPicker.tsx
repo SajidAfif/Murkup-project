@@ -1,5 +1,6 @@
 import { useState, useCallback, useRef } from 'react'
 import { GoogleMap, useJsApiLoader, Marker, Autocomplete } from '@react-google-maps/api'
+import OpenStreetMap from './OpenStreetMap'
 
 type Libraries = "places"[];
 const libraries: Libraries = ["places"];
@@ -23,16 +24,21 @@ const defaultCenter = {
 }
 
 export default function MapPicker({ initialLat, initialLng, onLocationSelect }: MapPickerProps) {
+  const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || ''
+  const hasApiKey = apiKey.length > 0 && !apiKey.startsWith('your_')
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
-    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || '',
+    googleMapsApiKey: apiKey,
     libraries
   })
 
   const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null)
 
   const [marker, setMarker] = useState<{ lat: number, lng: number } | null>(
-    initialLat && initialLng ? { lat: initialLat, lng: initialLng } : null
+    typeof initialLat === 'number' && typeof initialLng === 'number' &&
+      (initialLat !== 0 || initialLng !== 0)
+      ? { lat: initialLat, lng: initialLng }
+      : null
   )
 
   const onClick = useCallback((e: google.maps.MapMouseEvent) => {
@@ -58,6 +64,12 @@ export default function MapPicker({ initialLat, initialLng, onLocationSelect }: 
         onLocationSelect(lat, lng)
       }
     }
+  }
+
+  if (!hasApiKey) {
+    return (
+      <OpenStreetMap interactive onLocationSelect={onLocationSelect} />
+    )
   }
 
   if (!isLoaded) {

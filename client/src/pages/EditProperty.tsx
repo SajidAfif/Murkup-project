@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { propertyService } from '../services/api'
+import MapPicker from '../components/MapPicker'
 import toast from 'react-hot-toast'
 
 export default function EditProperty() {
@@ -25,6 +26,7 @@ export default function EditProperty() {
   const [existingImages, setExistingImages] = useState<string[]>([])
   const [toDelete, setToDelete] = useState<Set<string>>(new Set())
   const [files, setFiles] = useState<FileList | null>(null)
+  const [coordinates, setCoordinates] = useState<{ lat: number; lng: number } | null>(null)
 
   useEffect(() => {
     if (!id) return
@@ -51,6 +53,10 @@ export default function EditProperty() {
         floor: p.floor || '',
         amenities: p.amenities ? p.amenities.join(', ') : '',
       })
+      if (p.location?.latitude !== undefined && p.location?.longitude !== undefined &&
+        (p.location.latitude !== 0 || p.location.longitude !== 0)) {
+        setCoordinates({ lat: p.location.latitude, lng: p.location.longitude })
+      }
       setExistingImages(p.images || [])
     } catch (err: any) {
       toast.error('Failed to load property')
@@ -87,7 +93,12 @@ export default function EditProperty() {
       fd.append('propertyType', formData.propertyType)
       fd.append('rentalType', formData.rentalType)
       fd.append('price', String(formData.price))
-      fd.append('location', JSON.stringify({ address: formData.address, city: formData.city, latitude: 0, longitude: 0 }))
+      fd.append('location', JSON.stringify({
+        address: formData.address,
+        city: formData.city,
+        latitude: coordinates?.lat || 0,
+        longitude: coordinates?.lng || 0,
+      }))
       if (formData.rooms) fd.append('rooms', String(formData.rooms))
       if (formData.bathrooms) fd.append('bathrooms', String(formData.bathrooms))
       fd.append('furnishing', formData.furnishing)
@@ -139,6 +150,15 @@ export default function EditProperty() {
             </div>
             <input type="file" multiple accept="image/*" onChange={handleFileChange} />
             <p className="text-sm text-gray-500">Check existing images to remove them; new files will be appended.</p>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-2">Property Location</label>
+            <MapPicker
+              initialLat={coordinates?.lat}
+              initialLng={coordinates?.lng}
+              onLocationSelect={(lat, lng) => setCoordinates({ lat, lng })}
+            />
           </div>
 
           <div className="flex gap-4">

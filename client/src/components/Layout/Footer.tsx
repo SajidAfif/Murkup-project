@@ -14,6 +14,20 @@ const DEFAULT_SOCIALS = {
   linkedin: 'https://linkedin.com',
 }
 
+const DEFAULT_QUICK_LINKS = [
+  { label: 'Browse Properties', href: '/' },
+  { label: 'Post Property', href: '/list-property' },
+  { label: 'FAQ', href: '/search' },
+  { label: 'Contact', href: 'mailto:info@tolet.com' },
+]
+
+const DEFAULT_SUPPORT_LINKS = [
+  { label: 'Help Center', href: 'mailto:info@tolet.com?subject=Help%20Center' },
+  { label: 'Safety Tips', href: 'mailto:info@tolet.com?subject=Safety%20Tips' },
+  { label: 'Terms & Conditions', href: '/terms' },
+  { label: 'Privacy Policy', href: '/privacy' },
+]
+
 export default function Footer() {
   const [settings, setSettings] = useState<SiteSettings | null>(null)
   const [isEditing, setIsEditing] = useState(false)
@@ -38,6 +52,16 @@ export default function Footer() {
     }
   }
 
+  const renderFooterLink = (link: { label: string; href: string }) => {
+    if (link.href.startsWith('/')) {
+      return <Link to={link.href} className="hover:text-primary-400">{link.label}</Link>
+    }
+    return <a href={link.href} className="hover:text-primary-400">{link.label}</a>
+  }
+
+  const quickLinks = settings?.quickLinks?.length ? settings.quickLinks : DEFAULT_QUICK_LINKS
+  const supportLinks = settings?.supportLinks?.length ? settings.supportLinks : DEFAULT_SUPPORT_LINKS
+
   return (
     <footer className="bg-gray-900 dark:bg-black text-gray-100 mt-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -46,55 +70,33 @@ export default function Footer() {
           <div>
             <div className="flex items-center space-x-2 mb-4">
               <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-lg"></div>
-              <span className="text-xl font-bold">To-LET</span>
+              <span className="text-xl font-bold">{settings?.siteName || 'AmarToLet'}</span>
             </div>
             <p className="text-gray-400 text-sm">
-              Making it easy to find your perfect rental property
+              {settings?.description || 'Making it easy to find your perfect rental property'}
             </p>
           </div>
 
           {/* Links */}
           <div>
-            <h4 className="font-semibold mb-4">Quick Links</h4>
+            <h4 className="font-semibold mb-4">{settings?.quickLinksTitle || 'Quick Links'}</h4>
             <ul className="space-y-2 text-sm text-gray-400">
-              <li>
-                <Link to="/" className="hover:text-primary-400">Browse Properties</Link>
-              </li>
-              <li>
-                <Link to="/list-property" className="hover:text-primary-400">Post Property</Link>
-              </li>
-              <li>
-                <Link to="/search" className="hover:text-primary-400">FAQ</Link>
-              </li>
-              <li>
-                <a href="mailto:info@tolet.com" className="hover:text-primary-400">Contact</a>
-              </li>
+              {quickLinks.map((link, index) => <li key={`quick-${index}`}>{renderFooterLink(link)}</li>)}
             </ul>
           </div>
 
           {/* Support */}
           <div>
-            <h4 className="font-semibold mb-4">Support</h4>
+            <h4 className="font-semibold mb-4">{settings?.supportTitle || 'Support'}</h4>
             <ul className="space-y-2 text-sm text-gray-400">
-              <li>
-                <a href="mailto:info@tolet.com?subject=Help%20Center" className="hover:text-primary-400">Help Center</a>
-              </li>
-              <li>
-                <a href="mailto:info@tolet.com?subject=Safety%20Tips" className="hover:text-primary-400">Safety Tips</a>
-              </li>
-              <li>
-                <Link to="/terms" className="hover:text-primary-400">Terms &amp; Conditions</Link>
-              </li>
-              <li>
-                <Link to="/privacy" className="hover:text-primary-400">Privacy Policy</Link>
-              </li>
+              {supportLinks.map((link, index) => <li key={`support-${index}`}>{renderFooterLink(link)}</li>)}
             </ul>
           </div>
 
           {/* Contact */}
           <div>
             <div className="flex items-center justify-between mb-4">
-              <h4 className="font-semibold">Contact Us</h4>
+              <h4 className="font-semibold">{settings?.contactTitle || 'Contact Us'}</h4>
               {user?.userType === 'admin' && (
                 <button
                   onClick={() => setIsEditing(true)}
@@ -123,7 +125,7 @@ export default function Footer() {
               </div>
               <div className="flex items-start">
                 <MapPin className="w-4 h-4 mr-2 text-primary-400 mt-1 flex-shrink-0" />
-                <span>Dhaka, Bangladesh</span>
+                <span>{settings?.address || 'Dhaka, Bangladesh'}</span>
               </div>
             </div>
           </div>
@@ -132,7 +134,7 @@ export default function Footer() {
         {/* Social Media */}
         <div className="border-t border-gray-800 pt-8">
           <div className="flex items-center justify-between">
-            <p className="text-gray-400 text-sm">&copy; 2024 To-LET. All rights reserved.</p>
+            <p className="text-gray-400 text-sm">&copy; 2024 {settings?.siteName || 'AmarToLet'}. {settings?.copyright || 'All rights reserved.'}</p>
             <div className="flex space-x-4">
               {[
                 { key: 'facebook', href: settings?.facebook || DEFAULT_SOCIALS.facebook, icon: Facebook },

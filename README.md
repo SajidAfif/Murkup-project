@@ -1,4 +1,4 @@
-# To-LET Website
+# AmarToLet Website
 
 A modern rental property marketplace platform built with React, Node.js, and MongoDB.
 

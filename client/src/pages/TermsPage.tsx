@@ -4,7 +4,7 @@ export default function TermsPage() {
       <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-lg p-8">
         <h1 className="text-3xl font-bold mb-4">Terms & Conditions</h1>
         <p className="text-gray-600 dark:text-gray-400 mb-6">
-          By using To-LET, you agree to use the platform responsibly and provide accurate information when posting or requesting properties.
+          By using AmarToLet, you agree to use the platform responsibly and provide accurate information when posting or requesting properties.
         </p>
         <div className="space-y-4 text-sm text-gray-700 dark:text-gray-300">
           <p>
@@ -17,7 +17,7 @@ export default function TermsPage() {
             3. Fraudulent, misleading, or unsafe activity may result in account suspension.
           </p>
           <p>
-            4. To-LET may update these terms at any time without prior notice.
+            4. AmarToLet may update these terms at any time without prior notice.
           </p>
         </div>
       </div>

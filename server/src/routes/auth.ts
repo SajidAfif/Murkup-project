@@ -4,7 +4,6 @@ import { auth } from '../middleware/auth.js'
 import { CustomRequest, AppError } from '../middleware/errorHandler.js'
 import { User } from '../models/User.js'
 import jwt from 'jsonwebtoken'
-import { promises as dns } from 'dns'
 
 const router = express.Router()
 
@@ -15,6 +14,10 @@ router.post('/signup', async (req: CustomRequest, res) => {
   try {
     const { name, email, password, userType } = req.body
 
+    if (!name || !email || !password) {
+      return res.status(400).json({ error: 'Name, email, and password are required' })
+    }
+
     if (userType === 'admin') {
       return res.status(403).json({ error: 'Cannot register as an administrator.' })
     }
@@ -24,17 +27,6 @@ router.post('/signup', async (req: CustomRequest, res) => {
     }
 
     const normalizedEmail = (email as string).toLowerCase().trim()
-
-    // Check MX records for email domain to give a best-effort validation that email is deliverable
-    const domain = normalizedEmail.split('@')[1]
-    try {
-      const mx = await dns.resolveMx(domain)
-      if (!mx || mx.length === 0) {
-        return res.status(400).json({ error: "Email domain doesn't accept mail" })
-      }
-    } catch (err) {
-      return res.status(400).json({ error: "Email domain not found or not accepting mail" })
-    }
 
     const existingUser = await User.findOne({ email: normalizedEmail })
     if (existingUser) {
@@ -80,7 +72,11 @@ router.post('/login', async (req: CustomRequest, res) => {
   try {
     const { email, password } = req.body
 
-    const normalizedEmail = (email as string).toLowerCase().trim()
+    if (!email || !password || typeof email !== 'string' || typeof password !== 'string') {
+      return res.status(400).json({ error: 'Email and password are required' })
+    }
+
+    const normalizedEmail = email.toLowerCase().trim()
 
     const user = await User.findOne({ email: normalizedEmail })
     if (!user) {

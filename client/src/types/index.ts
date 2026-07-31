@@ -11,12 +11,21 @@ export interface User {
 }
 
 export interface SiteSettings {
+  siteName?: string
+  description?: string
+  quickLinksTitle?: string
+  supportTitle?: string
+  contactTitle?: string
+  quickLinks?: { label: string; href: string }[]
+  supportLinks?: { label: string; href: string }[]
   facebook?: string
   instagram?: string
   twitter?: string
   linkedin?: string
   phone?: string
   email?: string
+  address?: string
+  copyright?: string
 }
 
 export interface Property {

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { AlertCircle } from 'lucide-react'
 import { propertyService } from '../services/api'
 import { useAuthStore } from '../store/authStore'
+import MapPicker from '../components/MapPicker'
 import toast from 'react-hot-toast'
 
 export default function ListProperty() {
@@ -25,6 +26,7 @@ export default function ListProperty() {
     amenities: '',
   })
   const [files, setFiles] = useState<FileList | null>(null)
+  const [coordinates, setCoordinates] = useState<{ lat: number; lng: number } | null>(null)
 
   if (!user) {
     navigate('/login')
@@ -81,13 +83,19 @@ export default function ListProperty() {
         .map((a) => a.trim())
         .filter((a) => a)
 
+      if (!coordinates) {
+        toast.error('Please choose the property location on the map')
+        setLoading(false)
+        return
+      }
+
       const fd = new FormData()
       fd.append('title', formData.title)
       fd.append('description', formData.description)
       fd.append('propertyType', formData.propertyType)
       fd.append('rentalType', formData.rentalType)
       fd.append('price', formData.price)
-      fd.append('location', JSON.stringify({ address: formData.address, city: formData.city, latitude: 0, longitude: 0 }))
+      fd.append('location', JSON.stringify({ address: formData.address, city: formData.city, latitude: coordinates.lat, longitude: coordinates.lng }))
       if (formData.rooms) fd.append('rooms', formData.rooms)
       if (formData.bathrooms) fd.append('bathrooms', formData.bathrooms)
       fd.append('furnishing', formData.furnishing)
@@ -133,6 +141,12 @@ export default function ListProperty() {
                   placeholder="e.g., Beautiful 2BHK Apartment in Dhaka"
                   className="w-full px-4 py-2 rounded-lg bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 focus:ring-2 focus:ring-primary-500"
                 />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-2">Pin exact location *</label>
+                <MapPicker onLocationSelect={(lat, lng) => setCoordinates({ lat, lng })} />
+                <p className="mt-2 text-sm text-gray-500">Search for the address or click the map to place the property pin.</p>
               </div>
 
               <div>

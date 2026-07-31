@@ -7,6 +7,7 @@ import { Property } from '../types'
 import { useAuthStore } from '../store/authStore'
 import toast from 'react-hot-toast'
 import EditPropertyModal from '../components/Admin/EditPropertyModal'
+import PropertyMap from '../components/PropertyMap'
 
 export default function PropertyDetails() {
   const { id } = useParams()
@@ -292,6 +293,18 @@ export default function PropertyDetails() {
                   </div>
                 ))}
               </div>
+            </div>
+          )}
+
+          {property.location && (property.location.latitude !== 0 || property.location.longitude !== 0) && (
+            <div className="mb-8 rounded-xl bg-white p-6 dark:bg-gray-900">
+              <h2 className="mb-4 text-2xl font-bold">Property Location</h2>
+              <PropertyMap
+                address={property.location.address}
+                city={property.location.city}
+                latitude={property.location.latitude}
+                longitude={property.location.longitude}
+              />
             </div>
           )}
         </div>

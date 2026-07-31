@@ -107,7 +107,7 @@ export default function Home() {
 
       {/* Features Section */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-        <h2 className="text-4xl font-bold text-center mb-12">Why Choose To-LET?</h2>
+        <h2 className="text-4xl font-bold text-center mb-12">Why Choose AmarToLet?</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {[
             { icon: Lock, title: 'Verified Owners', desc: 'All owners are verified with NID or utility bills' },
@@ -180,7 +180,7 @@ export default function Home() {
           {[
             { q: 'How do I know if a property is verified?', a: 'Verified properties have a badge from owners who submitted NID or utility bill copies.' },
             { q: 'Can I schedule a property visit?', a: 'Yes! Click on any property and use the booking system to schedule a visit.' },
-            { q: 'Is it safe to use To-LET?', a: 'We verify all owners and have a review system to maintain trust and safety.' },
+            { q: 'Is it safe to use AmarToLet?', a: 'We verify all owners and have a review system to maintain trust and safety.' },
             { q: 'How much does it cost to list?', a: 'Listing is completely free! We earn from optional premium features.' },
           ].map((faq, i) => (
             <div key={i} className="p-6 bg-gray-50 dark:bg-gray-900 rounded-lg">

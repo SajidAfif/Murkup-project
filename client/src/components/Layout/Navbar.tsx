@@ -54,7 +54,7 @@ export default function Navbar({ isDark, onToggleDark }: NavbarProps) {
               <span className="text-white font-bold text-lg">TL</span>
             </div>
             <span className="hidden sm:inline text-xl font-bold text-gray-900 dark:text-white">
-              To-LET
+              AmarToLet
             </span>
           </Link>
 

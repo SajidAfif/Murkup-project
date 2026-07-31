@@ -156,7 +156,7 @@ export default function AdminPanel() {
               <Shield className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h1 className="font-bold text-lg">To-LET</h1>
+              <h1 className="font-bold text-lg">AmarToLet</h1>
               <p className="text-xs text-gray-400">Admin Panel</p>
             </div>
           </div>

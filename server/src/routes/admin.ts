@@ -120,17 +120,30 @@ router.get('/settings', async (req, res) => {
 
 router.patch('/settings', auth, adminOnly, async (req, res) => {
   try {
-    const { facebook, instagram, twitter, linkedin, phone, email } = req.body
+    const {
+      siteName, description, quickLinksTitle, supportTitle, contactTitle,
+      quickLinks, supportLinks, facebook, instagram, twitter, linkedin,
+      phone, email, address, copyright,
+    } = req.body
     let settings = await SiteSettings.findOne()
     if (!settings) {
       settings = new SiteSettings()
     }
+    if (siteName !== undefined) settings.siteName = siteName
+    if (description !== undefined) settings.description = description
+    if (quickLinksTitle !== undefined) settings.quickLinksTitle = quickLinksTitle
+    if (supportTitle !== undefined) settings.supportTitle = supportTitle
+    if (contactTitle !== undefined) settings.contactTitle = contactTitle
+    if (quickLinks !== undefined) settings.quickLinks = quickLinks
+    if (supportLinks !== undefined) settings.supportLinks = supportLinks
     if (facebook !== undefined) settings.facebook = facebook
     if (instagram !== undefined) settings.instagram = instagram
     if (twitter !== undefined) settings.twitter = twitter
     if (linkedin !== undefined) settings.linkedin = linkedin
     if (phone !== undefined) settings.phone = phone
     if (email !== undefined) settings.email = email
+    if (address !== undefined) settings.address = address
+    if (copyright !== undefined) settings.copyright = copyright
     await settings.save()
     res.json(settings)
   } catch (error) {
