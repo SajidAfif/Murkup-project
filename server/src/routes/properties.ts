@@ -1,4 +1,4 @@
-import express from 'express'
+import express, { Request, Response } from "express";
 import multer from 'multer'
 import path from 'path'
 import { auth } from '../middleware/auth.js'
@@ -9,7 +9,7 @@ import fs from 'fs'
 const router = express.Router()
 
 // Get all properties with filters
-router.get('/', async (req, res) => {
+router.get("/", async (req: Request, res: Response) => {
   try {
     const { propertyType, rentalType, minPrice, maxPrice, city, furnishing } = req.query
 
